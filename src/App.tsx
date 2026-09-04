@@ -21,6 +21,8 @@ export default function App() {
   const speedMultiplierRef = useRef(1.0);
   const [serveCount, setServeCount] = useState(1);
   const serveCountRef = useRef(1);
+  const [servePosition, setServePosition] = useState<'left' | 'center' | 'right'>('center');
+  const servePositionRef = useRef<'left' | 'center' | 'right'>('center');
 
   // Player input state (controlled either by Webcam or Keyboard/Touch)
   const [playerX, setPlayerX] = useState(0); // -1 (left) to 1 (right)
@@ -72,14 +74,28 @@ export default function App() {
       clearInterval(countdownTimerRef.current);
     }
 
+    // 1. Randomize serve start position (Left, Center, or Right)
+    const positions: Array<'left' | 'center' | 'right'> = ['left', 'center', 'right'];
+    const chosenPos = positions[Math.floor(Math.random() * positions.length)];
+    setServePosition(chosenPos);
+    servePositionRef.current = chosenPos;
+
+    // 3D coordinate startX for Yamaguchi's position
+    let startX = 0;
+    if (chosenPos === 'left') startX = -2.6;
+    else if (chosenPos === 'right') startX = 2.6;
+
     setGameStatus('COUNTDOWN');
     setYamaguchiPose('ready');
     let count = 3;
     setCountdown(count);
     playWhistle();
 
-    // Prepare ball in held state
+    // Prepare ball in held state at Yamaguchi's starting position
     physicsRef.current.state = 'held';
+    physicsRef.current.startX = startX;
+    physicsRef.current.startY = 2.4;
+    physicsRef.current.startZ = -22;
 
     // Pick a random target zone for this serve (within playable court width)
     const newTargetX = (Math.random() - 0.5) * 1.6;
@@ -105,18 +121,18 @@ export default function App() {
         setGameStatus('IN_FLIGHT');
         playServe();
 
-        // Launch ball projectile with progressive speed (+20% each throw)
+        // Launch ball projectile with progressive speed (+12% each throw)
         const currentMult = speedMultiplierRef.current;
         const flightTime = Math.max(0.48, 1.8 / currentMult);
 
-        const startX = 0;
+        const currentStartX = physicsRef.current.startX ?? 0;
         const startY = 2.4;
         const startZ = -22;
         const targetX = newTargetX;
         const targetY = -0.55;
         const targetZ = -1.2;
 
-        const vx = (targetX - startX) / flightTime;
+        const vx = (targetX - currentStartX) / flightTime;
         const vz = (targetZ - startZ) / flightTime;
         const vy = (targetY - startY + 0.5 * 6.5 * flightTime * flightTime) / flightTime;
 
@@ -125,7 +141,7 @@ export default function App() {
           state: 'flying',
           t: 0,
           startTime: performance.now(),
-          startX,
+          startX: currentStartX,
           startY,
           startZ,
           targetX,
@@ -139,8 +155,8 @@ export default function App() {
           hitChecked: false,
         };
 
-        // Increase speed by 20% for the next throw
-        const nextMult = Math.min(3.6, currentMult * 1.20);
+        // Increase speed by 12% for the next throw (reduced from 20%)
+        const nextMult = Math.min(3.6, currentMult * 1.12);
         speedMultiplierRef.current = nextMult;
         serveCountRef.current += 1;
         setSpeedMultiplier(nextMult);
@@ -578,7 +594,7 @@ export default function App() {
       </div>
 
       {/* 2. Opponent Character (Yamaguchi) */}
-      <YamaguchiOpponent pose={yamaguchiPose} />
+      <YamaguchiOpponent pose={yamaguchiPose} position={servePosition} />
 
       {/* 4. Full-screen Video & Canvas for Motion Tracking */}
       <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">

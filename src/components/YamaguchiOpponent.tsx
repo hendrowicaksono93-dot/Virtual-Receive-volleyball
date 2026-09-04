@@ -2,9 +2,17 @@ import React from 'react';
 
 interface YamaguchiOpponentProps {
   pose: 'ready' | 'toss' | 'jump' | 'spike';
+  position?: 'left' | 'center' | 'right';
 }
 
-export default function YamaguchiOpponent({ pose }: YamaguchiOpponentProps) {
+export default function YamaguchiOpponent({ pose, position = 'center' }: YamaguchiOpponentProps) {
+  const posTranslate =
+    position === 'left'
+      ? '-translate-x-36 md:-translate-x-52'
+      : position === 'right'
+      ? 'translate-x-36 md:translate-x-52'
+      : 'translate-x-0';
+
   return (
     <div className="absolute top-[120px] left-0 w-full h-[280px] flex items-center justify-center pointer-events-none z-10">
       {/* Volleyball Net spanning the center court */}
@@ -18,7 +26,7 @@ export default function YamaguchiOpponent({ pose }: YamaguchiOpponentProps) {
       </div>
 
       {/* Yamaguchi Character Container */}
-      <div className="relative flex flex-col items-center">
+      <div className={`relative flex flex-col items-center transition-transform duration-500 ease-out ${posTranslate}`}>
         {/* Opponent Shadow */}
         <div
           className={`w-32 h-6 bg-black/50 rounded-full blur-md transition-all duration-200 ${
@@ -108,9 +116,12 @@ export default function YamaguchiOpponent({ pose }: YamaguchiOpponentProps) {
           </div>
 
           {/* Name Tag Pill */}
-          <div className="mt-2 bg-black/80 px-3 py-1 rounded-full border border-yellow-400 shadow-lg text-center backdrop-blur-sm">
-            <span className="text-[10px] text-yellow-400 font-bold uppercase tracking-widest block leading-tight">OPPONENT</span>
-            <span className="text-xs font-black italic text-white tracking-wider">T. YAMAGUCHI (JUMP FLOAT)</span>
+          <div className="mt-2 bg-black/85 px-3 py-1 rounded-full border border-yellow-400 shadow-lg text-center backdrop-blur-sm flex items-center justify-center gap-1.5">
+            <span className="text-[10px] text-yellow-400 font-bold uppercase tracking-widest leading-tight">
+              {position === 'left' ? 'SERVE KIRI' : position === 'right' ? 'SERVE KANAN' : 'SERVE TENGAH'}
+            </span>
+            <span className="text-gray-400 text-xs">•</span>
+            <span className="text-xs font-black italic text-white tracking-wider">T. YAMAGUCHI</span>
           </div>
         </div>
       </div>

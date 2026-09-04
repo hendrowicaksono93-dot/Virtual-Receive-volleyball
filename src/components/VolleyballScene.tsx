@@ -274,27 +274,29 @@ export default function VolleyballScene({
 
       try {
         if (p.state === 'held') {
-          // Ball floats near Yamaguchi's chest
+          // Ball floats near Yamaguchi's chest at his serve start position
+          const sx = p.startX ?? 0;
           const floatOffset = Math.sin(now * 0.003) * 0.08;
-          b.position.set(0, 2.4 + floatOffset, -22);
+          b.position.set(sx, 2.4 + floatOffset, -22);
           b.rotation.y += dt * 0.6;
           b.visible = true;
 
-          s.position.set(0, floorY + 0.02, -22);
+          s.position.set(sx, floorY + 0.02, -22);
           s.scale.set(1.1, 1.1, 1.1);
           shadowMat.opacity = 0.4;
           s.visible = true;
 
           trailMeshesRef.current.forEach(m => { m.visible = false; });
         } else if (p.state === 'tossed') {
-          // Yamaguchi tosses ball upwards
+          // Yamaguchi tosses ball upwards from his serve position
+          const sx = p.startX ?? 0;
           const t = (now - p.startTime) / 1000;
           const tossY = 2.4 + 2.8 * t - 0.5 * 9.8 * t * t;
-          b.position.set(0, Math.max(tossY, 2.4), -22);
+          b.position.set(sx, Math.max(tossY, 2.4), -22);
           b.rotation.x += dt * 4;
           b.visible = true;
 
-          s.position.set(0, floorY + 0.02, -22);
+          s.position.set(sx, floorY + 0.02, -22);
           const heightDiff = Math.max(0.1, b.position.y - floorY);
           const sScale = Math.max(0.6, 2.0 / heightDiff);
           s.scale.set(sScale, sScale, sScale);
