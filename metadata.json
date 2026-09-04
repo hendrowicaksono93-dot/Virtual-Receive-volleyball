@@ -1,0 +1,10 @@
+{
+  "name": "Virtual Volleyball Receive Training",
+  "description": "Interactive webcam-based volleyball receive training game using MediaPipe and Three.js.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
